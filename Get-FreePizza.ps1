@@ -44,13 +44,10 @@ $GameSession = New-Object -TypeName Microsoft.PowerShell.Commands.WebRequestSess
 
 if ($Sid) {
     $GameCookie = @{
-        #city_has_been_confirmed = '1'
-        #city = '164'
         sid = $Sid
     }
 
     'Setting cookies:', ($GameCookie | Out-Table) | Write-Verbose
-
 
     $GameCookie.GetEnumerator() | ForEach-Object {
         $Cookie = New-Object -TypeName System.Net.Cookie 
@@ -71,11 +68,10 @@ if ($Sid) {
 } else {
     Write-Progress -Activity 'Logging in...'
 
-    $Auth = Invoke-WebRequest -Method Post -WebSession $GameSession -UseBasicParsing -Body ([ordered]@{
-        back = ''
+    $Auth = Invoke-WebRequest -Method Post -WebSession $GameSession -UseBasicParsing -Body @{
         login = $User
         passwd = $Password
-    }) -Uri 'https://puzzle.papajohns.ru/ajax/authorization/site/submit.html' -ContentType 'application/x-www-form-urlencoded' 
+    } -Uri 'https://puzzle.papajohns.ru/ajax/authorization/site/submit.html' -ContentType 'application/x-www-form-urlencoded' 
 
     $AuthConverted = $Auth | ConvertFrom-DefaultEncoding | ConvertFrom-Json
     if ($GameSuccess -eq $AuthConverted.result) {
