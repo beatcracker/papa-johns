@@ -82,7 +82,7 @@ if ($Sid) {
         'Logins success!', ($AuthConverted | Out-Table) | Write-Verbose
     } else {
         ($AuthConverted | Out-Table) | Write-Verbose
-        throw 'Login failed!'
+        throw "Login failed: $($AuthConverted.errorsText)"
     }
 }
 
