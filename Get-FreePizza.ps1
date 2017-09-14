@@ -1,18 +1,37 @@
+<#
+.Synopsis
+    Get a code for free complimenatry pizza from puzzle.papajohns.ru
+
+.Description
+    No need to play a game, just run this script and get a code for free random pizza in your next order.
+
+.Parameter User
+    Email registered on puzzle.papajohns.ru
+
+.Parameter Password
+    Password for email registered on puzzle.papajohns.ru
+
+.Parameter Sid
+    If you don't want to pass email/password combo to script, you can login to the puzzle.papajohns.ru and use a value of 'sid' cookie.
+
+.Delay
+    Delay between sending game data to server. Default is 1 second.
+#>
 [CmdletBinding(DefaultParameterSetName = 'Login')]
 Param (
 
     [Parameter(Mandatory = $true, ParameterSetName = 'Login')]
     [ValidateNotNullOrEmpty()]
-    $User,
+    [string]$User,
 
     [Parameter(Mandatory = $true, ParameterSetName = 'Login')]
     [ValidateNotNullOrEmpty()]
-    $Password,
+    [string]$Password,
 
     [Parameter(Mandatory = $true, ParameterSetName = 'Sid')]
-    $Sid,
+    [string]$Sid,
 
-    $Delay = 1
+    [int]$Delay = 1
 )
 
 filter Out-Table{
