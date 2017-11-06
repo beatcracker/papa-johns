@@ -1,6 +1,6 @@
 <#
 .Synopsis
-    Get a code for free complimenatry pizza from puzzle.papajohns.ru
+    Get a code for free complementary pizza from puzzle.papajohns.ru
 
 .Description
     No need to play a game, just run this script and get a code for free random pizza in your next order.
