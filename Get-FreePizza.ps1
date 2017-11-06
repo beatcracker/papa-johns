@@ -14,8 +14,11 @@
 .Parameter Sid
     If you don't want to pass email/password combo to script, you can login to the puzzle.papajohns.ru and use a value of 'sid' cookie.
 
-.Delay
+.Parameter Delay
     Delay between sending game data to server. Default is 1 second.
+
+.Notes
+    I'm too lazy to pass username/password/sid as a proper crendtials object. Sorry about that.
 #>
 [CmdletBinding(DefaultParameterSetName = 'Login')]
 Param (
@@ -34,27 +37,34 @@ Param (
     [int]$Delay = 1
 )
 
+<#
+.SYNOPSIS
+    Format debug output.
+#>
 filter Out-Table{
     $_ | Format-Table -AutoSize | Out-String
 }
 
-function ConvertFrom-DefaultEncoding {
+<#
+.SYNOPSIS
+    Fix for site not setting encoding correctly which breaks cyrillic.
+#>
+function ConvertTo-Utf8String {
     [CmdletBinding()]
     Param (
         [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)]
-        $Content
+        [ValidateNotNull()]
+        [Alias('RawContentStream')]
+        [System.IO.MemoryStream]$InputObject
     )
 
     Process {
         [System.Text.Encoding]::UTF8.GetString(
-            [System.Text.Encoding]::Convert(
-                [System.Text.Encoding]::UTF8,
-                [System.Text.Encoding]::GetEncoding('iso-8859-1'),
-                [System.Text.Encoding]::UTF8.GetBytes($Content)
-            )
+            $InputObject.ToArray()
         )
     }
 }
+
 
 $GameSuccess = 'success'
 
@@ -69,8 +79,8 @@ if ($Sid) {
     'Setting cookies:', ($GameCookie | Out-Table) | Write-Verbose
 
     $GameCookie.GetEnumerator() | ForEach-Object {
-        $Cookie = New-Object -TypeName System.Net.Cookie 
-    
+        $Cookie = New-Object -TypeName System.Net.Cookie
+
         $Cookie.Name = $_.Key
         $Cookie.Value = $_.Value
 
@@ -90,9 +100,9 @@ if ($Sid) {
     $Auth = Invoke-WebRequest -Method Post -WebSession $GameSession -UseBasicParsing -Body @{
         login = $User
         passwd = $Password
-    } -Uri 'https://puzzle.papajohns.ru/ajax/authorization/site/submit.html' -ContentType 'application/x-www-form-urlencoded' 
+    } -Uri 'https://puzzle.papajohns.ru/ajax/authorization/site/submit.html' -ContentType 'application/x-www-form-urlencoded'
 
-    $AuthConverted = $Auth | ConvertFrom-DefaultEncoding | ConvertFrom-Json
+    $AuthConverted = $Auth | ConvertTo-Utf8String | ConvertFrom-Json
     if ($GameSuccess -eq $AuthConverted.result) {
         'Logins success!', ($AuthConverted | Out-Table) | Write-Verbose
     } else {
@@ -144,7 +154,7 @@ if ($GameSuccess -eq $GameData.Result) {
     Write-Progress -Activity 'Playing game' -Status "$GameTotalPct% Complete:" -PercentComplete $GameTotalPct
     'Done:' | Write-Verbose
 
-    ($GameResult[-1] | ConvertFrom-DefaultEncoding | ConvertFrom-Json).game
+    ($GameResult[-1] | ConvertTo-Utf8String | ConvertFrom-Json).game
 } else {
     'Failed!', ($GameData | Out-Table) | Write-Error
 }
