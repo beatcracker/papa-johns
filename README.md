@@ -1,6 +1,6 @@
 # Free pizza!
 
-This offer is expired and while the site and the script a still working, the codes you'll recieve are not valid anymore.
+This offer is expired and while the site and the script are still working, the codes you'll recieve are not valid anymore.
 
 ---
 
